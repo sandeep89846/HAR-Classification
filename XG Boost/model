@@ -1,0 +1,53 @@
+import pandas as pd
+import xgboost as xgb
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import accuracy_score, f1_score
+import joblib
+
+# Load dataset
+data_file = r"C:\Users\gontu\OneDrive\Documents\HAR Classification\wisdm_accel_ABCDE_features.csv"
+df = pd.read_csv(data_file)
+
+# Assume last column is the target label, modify if necessary
+target_column = df.columns[-1]
+X = df.drop(columns=[target_column])
+y = df[target_column]
+
+
+from sklearn.preprocessing import LabelEncoder
+
+# Encode categorical labels as numbers
+label_encoder = LabelEncoder()
+y = label_encoder.fit_transform(y)  # Converts ['A', 'B', 'C', 'D', 'E'] to [0, 1, 2, 3, 4]
+
+
+
+# Split data into train and test sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+
+# Standardize features
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# Train XGBoost classifier
+model = xgb.XGBClassifier(objective='multi:softmax', eval_metric='mlogloss')
+model.fit(X_train, y_train)
+
+# Make predictions
+y_pred = model.predict(X_test)
+
+y_pred_labels = label_encoder.inverse_transform(y_pred)  # Converts [0, 1, 2, 3, 4] back to ['A', 'B', 'C', 'D', 'E']
+
+
+# Evaluate the model
+accuracy = accuracy_score(y_test, y_pred)
+f1 = f1_score(y_test, y_pred, average='weighted')
+print(f"Accuracy: {accuracy:.4f}")
+print(f"F1 Score: {f1:.4f}")
+
+# Save model & scaler
+joblib.dump(model, "xgboost_model.pkl")
+joblib.dump(scaler, "scaler.pkl")
+print("Model and scaler saved!")

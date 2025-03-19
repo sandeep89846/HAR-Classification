@@ -1,0 +1,26 @@
+# Python virtual environment directories
+Include/
+Lib/
+Scripts/
+share/
+
+# Python compiled files
+*.npy
+*.csv
+*.pyc
+__pycache__/
+
+# Environment files
+.env
+.venv
+env/
+venv/
+
+# IDE specific files
+.vscode/
+.idea/
+
+# Operating System files
+.DS_Store
+Thumbs.db
+
